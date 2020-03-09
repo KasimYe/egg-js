@@ -10,7 +10,7 @@ module.exports = app => {
   app.role.failureHandler = () => {
     throw new StatusError(
       "需要先登录！",
-      StatusError.ERROR_STATUS.PERMISSION_ERROR
+      StatusError.StatusError.ERROR_STATUS.PERMISSION_ERROR
     );
   };
 

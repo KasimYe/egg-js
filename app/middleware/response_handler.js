@@ -25,7 +25,7 @@ module.exports = () => {
     } catch (e) {
       ctx.logger.error(e.message);
       // ECMAScript规范不支持像java一样的多catch语句
-      if (e) {        
+      if (e) {
         ctx.body = {
           errno: e.status || StatusError.ERROR_STATUS.SERVER_ERROR,
           errmsg: e.message || "似乎出了什么问题",

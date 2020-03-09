@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class StatusError extends Error {
-    constructor(message, status = StatusError.ERROR_STATUS.SERVER_ERROR) {
+    constructor(message, status = StatusError.StatusError.ERROR_STATUS.SERVER_ERROR) {
         super(message);
         this.status = status;
     }

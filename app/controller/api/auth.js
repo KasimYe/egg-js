@@ -1,3 +1,7 @@
+const { Controller } = require("egg");
+const { StatusError } = require("../../entity/status_error");
+const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
 class AuthController extends Controller {
   async loginByWeChat() {
     const {
@@ -55,7 +59,7 @@ class AuthController extends Controller {
     }
 
     // 根据微信服务返回的会话信息解密用户数据
-    const weixinUserInfo = await service.wechat.decryptUserInfoData(
+    const weixinUserInfo = await service.api.wechat.decryptUserInfoData(
       sessionData.session_key,
       fullUserInfo.encryptedData,
       fullUserInfo.iv
@@ -68,21 +72,13 @@ class AuthController extends Controller {
     }
 
     // 根据openid查找用户是否已经注册
-    let user = await model.User.find({
-      where: { weixin_openid: sessionData.openid },
-      attributes: [
-        "id",
-        "username",
-        "nickname",
-        "gender",
-        "avatar",
-        "birthday"
-      ],
-      raw: true
-    });
+    let user = await service.api.user.find(
+      { weixin_openid: sessionData.openid },
+      ["id", "username", "nickname", "gender", "avatar", "birthday"]
+    );
     if (!user) {
       // 注册
-      user = await model.User.create({
+      user = await service.api.user.save({
         username: "微信用户" + Uuid.v1(),
         password: sessionData.openid,
         register_time: Math.floor(new Date().getTime() / 1000),
@@ -100,15 +96,10 @@ class AuthController extends Controller {
     sessionData.user_id = user.id;
 
     // 更新登录信息
-    model.User.update(
-      {
-        last_login_ip: clientIp,
-        last_login_time: Math.floor(new Date().getTime() / 1000)
-      },
-      {
-        where: { id: user.id }
-      }
-    );
+    await service.api.user.updateById(user.id, {
+      last_login_ip: clientIp,
+      last_login_time: Math.floor(new Date().getTime() / 1000)
+    });
 
     // 创建token
     const token = jwt.sign(sessionData, config.jwtSession.secret);
@@ -119,3 +110,4 @@ class AuthController extends Controller {
     };
   }
 }
+module.exports = AuthController;

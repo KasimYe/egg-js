@@ -1,6 +1,6 @@
-const { StatusError } = require('../entity/status_error');
+const StatusError = require("../entity/status_error");
 
-module.exports= {
+module.exports = {
   /**
    * @description 分页辅助函数，获取总页数，查询偏移
    * @param {number} totalCount 总记录数
@@ -46,10 +46,10 @@ module.exports= {
       ctx.validate(rules, params);
       return params;
     } catch (e) {
-      ctx.logger.info(e.message);      
+      ctx.logger.info(e.message);
       throw new StatusError(
         e.message,
-        StatusError.ERROR_STATUS.REQUEST_PARAMS_ERROR
+        StatusError.StatusError.ERROR_STATUS.REQUEST_PARAMS_ERROR
       );
     }
   }

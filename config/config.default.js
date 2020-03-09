@@ -17,8 +17,8 @@ module.exports = appInfo => {
 
   // 微信配置
   config.wechat = {
-    appid: "wx7dffdfe1be046be9",
-    secret: "b174075db7ef3cf7119b43fdc6f72e9a",
+    appid: "wx53d3600d66f0fe90",
+    secret: "cb5a135ceb3105716df122af9f1429ff",
     mch_id: "",
     partner_key: "",
     notify_url: ""
@@ -39,6 +39,12 @@ module.exports = appInfo => {
     match: [/\/api\//],
     tokenHeader: "X-Nideshop-Token",
     secret: "SLDLKKDS323ssdd@#@@gf"
+  };
+
+  config.security = {
+    csrf: {
+      enable: false
+    }
   };
 
   config.sequelize = {

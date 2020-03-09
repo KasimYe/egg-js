@@ -27,8 +27,8 @@ class CatalogService extends Service {
     let currentCategory = await categories.one(id);
     currentCategory.subCategoryList = await categories.list(
       { parent_id: currentCategory.id, is_show: 1 },
-      1,
-      100,
+      0,
+      0,
       [["sort_order", "ASC"]]
     );
     return { currentCategory: currentCategory };
