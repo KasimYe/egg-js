@@ -34,7 +34,7 @@ class CartController extends Controller {
       number: { type: 'number' },
     }, request.body, this.ctx);
 
-    service.api.cart.add(goodsId, productId, number);
+    await service.api.cart.add(goodsId, productId, number);
     response.body = await service.api.cart.getCart();
   }
 
@@ -51,8 +51,8 @@ class CartController extends Controller {
       number: { type: 'number' },
     }, request.body, this.ctx);
 
-    await service.cart.update(goodsId, productId, cartId, number);
-    response.body = await service.cart.getCart();
+    await service.api.cart.updateCart(goodsId, productId, cartId, number);
+    response.body = await service.api.cart.getCart();
   }
 
   /**
@@ -87,7 +87,7 @@ class CartController extends Controller {
       // couponId: { type: 'numberString', field: 'couponId' },
     }, request.query, this.ctx);
 
-    response.body = await service.cart.checkout(addressId);
+    response.body = await service.api.cart.checkout(addressId);
   }
 
   /**

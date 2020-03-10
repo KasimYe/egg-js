@@ -13,7 +13,7 @@ module.exports = app => {
   const tablePrefix = app.config.tablePrefix;
 
   const address = sequelize.define(
-    tablePrefix + "address",
+     "address",
     {
       id: {
         type: MEDIUMINT.UNSIGNED,
@@ -78,6 +78,8 @@ module.exports = app => {
       }
     },
     {
+      freezeTableName: true,
+      tableName:tablePrefix + "address",      
       timestamps: false,
       charset: "utf8mb4",
       initialAutoIncrement: "12",

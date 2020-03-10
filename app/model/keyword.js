@@ -71,7 +71,7 @@ module.exports = app => {
     },
     {
       freezeTableName: true,
-      tableName: tablePrefix + "keyword",
+      tableName: tablePrefix + "keywords",
       timestamps: false,
       comment: "搜索历史",
       charset: "utf8mb4"

@@ -79,7 +79,6 @@ class CartService extends BaseService {
   async add(goodsId, productId, number) {
     const { jwtSession = { user_id: 1 } } = this.ctx;
     const goodsInfo = await this.checkGoodsOnSale(goodsId);
-    console.log("jwtSession:", jwtSession);
     await this.addGoods(
       jwtSession.user_id,
       goodsId,
@@ -88,6 +87,7 @@ class CartService extends BaseService {
       goodsInfo
     );
   }
+
   /**
    * @description 向购物车里面添加货物
    * @param {number} userId 用户id
@@ -150,30 +150,94 @@ class CartService extends BaseService {
         goods_specifition_ids: productInfo.goods_specification_ids,
         checked: 1
       };
-      console.log("cartData:", cartData);
-      await this.insertOrUpdate(cartData);
+      await this.save(cartData);
     }
   };
 
   updateGoods = async (goodsId, productId, number, cartId) => {
+    const sapi = this.service.api;
     // 查询货物规格信息，判断是否有足够的存货
-    const productInfo = await app.model.Product.find({
-      where: { goods_id: goodsId, id: productId },
-      raw: true
+    const productInfo = await sapi.product.find({
+      goods_id: goodsId,
+      id: productId
     });
     if (!productInfo || productInfo.goods_number < number) {
       throw new StatusError("库存不足", StatusError.ERROR_STATUS.DATA_ERROR);
     }
     // NOTE: 原工程的逻辑比这里复杂，但是不明白什么意思
     // 查找到购物车商品更新数量
-    await app.model.Cart.update(
-      {
-        number
-      },
-      {
-        where: { id: cartId }
-      }
-    );
+    await this.updateById(cartId, { number });
   };
+
+  /**
+   * @description 更新购物车货物数量
+   * @param {number} goodsId
+   * @param {number} productId
+   * @param {number} cartId
+   * @param {number} number
+   * @memberof CartServ
+   */
+  async updateCart(goodsId, productId, cartId, number) {
+    await this.checkGoodsOnSale(goodsId);
+    await this.updateGoods(goodsId, productId, number, cartId);
+  }
+
+  async checkout(addressId) {
+    const { service, jwtSession = { user_id: 1 } } = this.ctx;
+
+    // 查询使用地址
+    const whereObj = {
+      user_id: jwtSession.user_id
+    };
+    addressId > 0 ? (whereObj.id = addressId) : (whereObj.is_default = 1);
+    const checkedAddress = await service.api.address.find(whereObj);
+
+    if (checkedAddress) {
+      const [provinceName, cityName, districtName] = await Promise.all([
+        service.api.region.getRegionName(checkedAddress.province_id),
+        service.api.region.getRegionName(checkedAddress.city_id),
+        service.api.region.getRegionName(checkedAddress.district_id)
+      ]);
+      checkedAddress["province_name"] = provinceName;
+      checkedAddress["city_name"] = cityName;
+      checkedAddress["district_name"] = districtName;
+      checkedAddress["full_region"] = provinceName + cityName + districtName;
+    }
+
+    // NOTE: 根据收货地址计算运费，暂时没有实现
+    const freightPrice = 0.0;
+
+    // 获取要购买的商品，checked===1才是需要购买的商品
+    const cartData = await this.getCart();
+    const checkedGoodsList = cartData.cartList.filter(v => {
+      return v.checked === 1;
+    });
+
+    // 获取可用的优惠券信息，功能还未实现
+    const couponList = await service.api.userCoupon.list({
+      user_id: jwtSession.user_id,
+      coupon_number: { [Op.gt]: 0 }
+    });
+    // 优惠券减免的金额
+    const couponPrice = 0;
+
+    // 计算订单费用
+    const goodsTotalPrice = cartData.cartTotal.checkedGoodsAmount;
+    const orderTotalPrice =
+      cartData.cartTotal.checkedGoodsAmount + freightPrice - couponPrice; // 订单的总价
+    const actualPrice = orderTotalPrice - 0.0; // 减去其它支付的金额后，要实际支付的金额
+
+    return {
+      checkedAddress,
+      freightPrice,
+      checkedCoupon: {},
+      couponList,
+      couponPrice,
+      checkedGoodsList,
+      goodsTotalPrice,
+      orderTotalPrice,
+      actualPrice
+    };
+  }
 }
 module.exports = CartService;

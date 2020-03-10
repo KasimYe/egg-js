@@ -5,7 +5,7 @@ class AddressService extends BaseService {
   }
 
   getDetailAddress = async userAddress => {
-    const { Region } = this.service.api;
+    const  Region  = this.service.api.region;
     const [provinceName, cityName, districtName] = await Promise.all([
       Region.getRegionName(userAddress.province_id),
       Region.getRegionName(userAddress.city_id),

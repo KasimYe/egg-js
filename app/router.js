@@ -66,37 +66,37 @@ module.exports = app => {
   // 选中或者剔除购物车内的货物
   router.post(apiPrefix + '/cart/checked', needLogin, controller.api.cart.checked);
 
-  // // 区域相关
-  // // 获取父区域id下的子区域列表
-  // router.get(apiPrefix + '/region/list', controller.region.listChildRegion);
+  // 区域相关
+  // 获取父区域id下的子区域列表
+  router.get(apiPrefix + '/region/list', controller.api.region.listChildRegion);
 
-  // // 地址相关
-  // // 地址列表
-  // router.get(apiPrefix + '/address/list', needLogin, controller.address.list);
-  // // 地址详情
-  // router.get(apiPrefix + '/address/detail', needLogin, controller.address.detail);
-  // // 保存地址
-  // router.post(apiPrefix + '/address/save', needLogin, controller.address.save);
-  // // 删除地址
-  // router.post(apiPrefix + '/address/delete', needLogin, controller.address.deleteAddress);
+  // 地址相关
+  // 地址列表
+  router.get(apiPrefix + '/address/list', needLogin, controller.api.address.list);
+  // 地址详情
+  router.get(apiPrefix + '/address/detail', needLogin, controller.api.address.detail);
+  // 保存地址
+  router.post(apiPrefix + '/address/save', needLogin, controller.api.address.save);
+  // 删除地址
+  router.post(apiPrefix + '/address/delete', needLogin, controller.api.address.deleteAddress);
 
-  // // 收藏相关接口
-  // // 显示用户收藏的所有货物
-  // router.get(apiPrefix + '/collect/list', needLogin, controller.collect.list);
-  // // 用户添加或者删除收藏
-  // router.post(apiPrefix + '/collect/addordelete', needLogin, controller.collect.addOrDelete);
+  // 收藏相关接口
+  // 显示用户收藏的所有货物
+  router.get(apiPrefix + '/collect/list', needLogin, controller.api.collect.list);
+  // 用户添加或者删除收藏
+  router.post(apiPrefix + '/collect/addordelete', needLogin, controller.api.collect.addOrDelete);
 
   // 品牌相关
   router.get(apiPrefix + '/brand/detail', controller.api.brand.detail);
   router.get(apiPrefix + "/brand/list", controller.api.brand.list);
 
-  // // 搜索相关
-  // // 搜索历史与热门搜索
-  // router.get(apiPrefix + '/search/index', controller.search.index);
-  // // 实时搜索
-  // router.get(apiPrefix + '/search/helper', controller.search.helper);
-  // // 清除用户搜索历史
-  // router.post(apiPrefix + '/search/clearhistory', controller.search.clearHistory);
+  // 搜索相关
+  // 搜索历史与热门搜索
+  router.get(apiPrefix + '/search/index', controller.api.search.index);
+  // 实时搜索
+  router.get(apiPrefix + '/search/helper', controller.api.search.helper);
+  // 清除用户搜索历史
+  router.post(apiPrefix + '/search/clearhistory', controller.api.search.clearHistory);
 
   // // 订单相关
   // // 查询订单列表
