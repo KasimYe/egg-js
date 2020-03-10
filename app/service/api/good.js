@@ -287,5 +287,41 @@ class GoodService extends BaseService {
   getProductList = goodsId => {
     return this.service.api.product.list({ goods_id: goodsId });
   };
+
+  async relate(goodId) {
+    const sapi = this.ctx.service.api;
+    // 查找相关货物id
+    const relatedGoodIds = await sapi.relatedGood.list(
+      { id: goodId },
+      0,
+      0,
+      [],
+      ["related_goods_id"]
+    );
+    let relatedGoods = null;
+    if (relatedGoodIds && relatedGoodIds.length > 0) {
+      // 根据相关id查找相关货物
+      relatedGoods = await this.list(
+        { id: { [Op.in]: relatedGoodIds } },
+        0,
+        0,
+        [],
+        ["id", "name", "list_pic_url", "retail_price"]
+      );
+    } else {
+      // 没有相关货物id，查找同种类的货物
+      const goodInfo = await this.one(goodId);
+      relatedGoods = await this.list(
+        { category_id: goodInfo.category_id },
+        1,
+        8,
+        [],
+        ["id", "name", "list_pic_url", "retail_price"]
+      );
+    }
+    return {
+      goodsList: relatedGoods
+    };
+  }
 }
 module.exports = GoodService;

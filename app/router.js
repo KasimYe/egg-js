@@ -44,8 +44,8 @@ module.exports = app => {
   router.get(apiPrefix + '/goods/list', controller.api.good.list);
   // 货物详情
   router.get(apiPrefix + '/goods/detail', controller.api.good.detail); ;
-  // // 相关货物列表
-  // router.get(apiPrefix + '/goods/related', controller.good.relate);
+  // 相关货物列表
+  router.get(apiPrefix + '/goods/related', controller.api.good.relate);
 
   // 微信登录
   router.post(apiPrefix + '/auth/loginByWeixin', controller.api.auth.loginByWeChat);

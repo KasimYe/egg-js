@@ -90,7 +90,7 @@ class GoodController extends Controller {
       },
       request.query,
       this.ctx
-    );   
+    );
 
     response.body = await service.api.good.detail(goodId);
   }
@@ -100,7 +100,7 @@ class GoodController extends Controller {
    * @memberof GoodCtrl
    */
   async relate() {
-    const { helper, request, model, response } = this.ctx;
+    const { helper, request, service, response } = this.ctx;
     const { id: goodId } = helper.validateParams(
       {
         id: { type: "numberString", field: "id" }
@@ -109,38 +109,7 @@ class GoodController extends Controller {
       this.ctx
     );
 
-    // 查找相关货物id
-    const relatedGoodIds = await model.RelatedGood.findAll({
-      where: { id: goodId },
-      attributes: ["related_goods_id"],
-      raw: true
-    });
-
-    let relatedGoods = null;
-    if (relatedGoodIds && relatedGoodIds.length > 0) {
-      // 根据相关id查找相关货物
-      relatedGoods = await model.Good.findAll({
-        where: { id: { [Op.in]: relatedGoodIds } },
-        attributes: ["id", "name", "list_pic_url", "retail_price"],
-        raw: true
-      });
-    } else {
-      // 没有相关货物id，查找同种类的货物
-      const goodInfo = await model.Good.find({
-        where: { id: goodId },
-        raw: true
-      });
-      relatedGoods = await model.Good.findAll({
-        where: { category_id: goodInfo.category_id },
-        attributes: ["id", "name", "list_pic_url", "retail_price"],
-        limit: 8,
-        raw: true
-      });
-    }
-
-    response.body = {
-      goodsList: relatedGoods
-    };
+    response.body = await service.api.good.relate(goodId);
   }
 }
 

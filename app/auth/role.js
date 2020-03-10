@@ -16,15 +16,15 @@ module.exports = app => {
 
   app.role.use("login", ctx => {
     const { jwtSession } = ctx;
-    if (app.env === "unittest") {
-      ctx.jwtSession = {
-        user_id: 1,
-        session_key: "123",
-        openid: "123",
-        iat: 1
-      };
-      return true;
-    }
+    // if (app.env === "unittest") {
+    //   ctx.jwtSession = {
+    //     user_id: 1,
+    //     session_key: "123",
+    //     openid: "123",
+    //     iat: 1
+    //   };
+    //   return true;
+    // }
 
     if (jwtSession && jwtSession.user_id) {
       return true;

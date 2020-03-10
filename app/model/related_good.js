@@ -36,7 +36,7 @@ module.exports = app => {
     },
     {
       freezeTableName: true,
-      tableName: tablePrefix + "related_good",
+      tableName: tablePrefix + "related_goods",
       timestamps: false,
       charset: "utf8mb4"
     }

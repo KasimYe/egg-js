@@ -1,4 +1,4 @@
-const StatusError = require("../entity/status_error");
+const { StatusError } = require('../entity/status_error');
 
 module.exports = {
   /**
@@ -49,7 +49,7 @@ module.exports = {
       ctx.logger.info(e.message);
       throw new StatusError(
         e.message,
-        StatusError.StatusError.ERROR_STATUS.REQUEST_PARAMS_ERROR
+        StatusError.ERROR_STATUS.REQUEST_PARAMS_ERROR
       );
     }
   }

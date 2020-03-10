@@ -30,5 +30,32 @@ class GoodSpecificationService extends Service {
     });
     return results;
   }
+
+  /**
+   * findAll List
+   * @param where 查询条件
+   * @param offset 页数
+   * @param limit 每页条目数
+   * @param order 排序，格式[['name', 'DESC']]
+   * @param attributes 查询的列
+   */
+  async list(
+    where = {},
+    offset = 0,
+    limit = 0,
+    order = [],
+    attributes = [],
+    raw = true
+  ) {
+    const options = {
+      where: where,
+      limit: limit !== 0 ? limit : null,
+      offset: offset !== 0 ? helper.pageOffset(offset, limit) : null,
+      order: order === [] ? null : order,
+      attributes: attributes.length > 0 ? attributes : null,
+      raw: raw
+    };
+    return await this.app.model.GoodSpecification.findAll(options);
+  }
 }
 module.exports = GoodSpecificationService;

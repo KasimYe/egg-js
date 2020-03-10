@@ -92,6 +92,10 @@ class BaseService extends Service {
     return await this.app.model[this.model].update(data, { where: where });
   }
 
+  async insertOrUpdate(data) {
+    return await this.app.model[this.model].update(data, { returning: false });
+  }
+
   async save(data) {
     return await this.app.model[this.model].create(data);
   }

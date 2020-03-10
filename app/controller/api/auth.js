@@ -2,6 +2,7 @@ const { Controller } = require("egg");
 const { StatusError } = require("../../entity/status_error");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
+const Uuid=require('uuid');
 class AuthController extends Controller {
   async loginByWeChat() {
     const {

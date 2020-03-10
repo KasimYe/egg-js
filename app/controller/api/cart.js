@@ -3,9 +3,9 @@ const Controller = require("egg").Controller;
 class CartController extends Controller {
     
     // 获取购物车商品的总件件数
-  async goodscount() {
+  async goodscount() {   
     const { service, response } = this.ctx;
-    const cartData = await service.cart.getCart();
+    const cartData = await service.api.cart.getCart();
     response.body = {
       cartTotal: {
         goodsCount: cartData.cartTotal.goodsCount,
@@ -19,7 +19,7 @@ class CartController extends Controller {
    */
   async index() {
     const { service, response } = this.ctx;
-    response.body = await service.cart.getCart();
+    response.body = await service.api.cart.getCart();
   }
 
   /**
@@ -34,8 +34,8 @@ class CartController extends Controller {
       number: { type: 'number' },
     }, request.body, this.ctx);
 
-    service.cart.add(goodsId, productId, number);
-    response.body = await service.cart.getCart();
+    service.api.cart.add(goodsId, productId, number);
+    response.body = await service.api.cart.getCart();
   }
 
   /**
