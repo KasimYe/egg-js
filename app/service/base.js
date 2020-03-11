@@ -27,7 +27,9 @@ class BaseService extends Service {
     limit = 0,
     order = [],
     attributes = [],
-    raw = true
+
+    raw = true,
+    transaction = null
   ) {
     const options = {
       where: where,
@@ -35,7 +37,8 @@ class BaseService extends Service {
       offset: offset !== 0 ? helper.pageOffset(offset, limit) : null,
       order: order === [] ? null : order,
       attributes: attributes.length > 0 ? attributes : null,
-      raw: raw
+      raw: raw,
+      transaction: transaction
     };
     return await this.app.model[this.model].findAll(options);
   }
@@ -55,7 +58,8 @@ class BaseService extends Service {
     limit = 0,
     order = [],
     attributes = [],
-    raw = true
+    raw = true,
+    transaction = null
   ) {
     const options = {
       where: where,
@@ -63,51 +67,82 @@ class BaseService extends Service {
       offset: offset !== 0 ? helper.pageOffset(offset, limit) : null,
       order: order === [] ? null : order,
       attributes: attributes.length > 0 ? attributes : null,
-      raw: raw
+      raw: raw,
+      transaction: transaction
     };
     return await this.app.model[this.model].findAndCountAll(options);
   }
 
-  async find(where = {}, attributes = []) {
+  async find(where = {}, attributes = [], raw = true, transaction = null) {
     const options = {
       where: where,
       attributes: attributes.length > 0 ? attributes : null,
-      raw: true
+      raw: raw,
+      transaction: transaction
     };
     return await this.app.model[this.model].findOne(options);
   }
 
-  async one(id) {
+  async one(id, raw = true, transaction = null) {
     return await this.app.model[this.model].findOne({
       where: { id: id },
-      raw: true
+      raw: raw,
+      transaction: transaction
     });
   }
 
-  async updateById(id, data) {
-    return await this.app.model[this.model].update(data, { where: { id: id } });
+  async updateById(id, data, raw = true, transaction = null) {
+    return await this.app.model[this.model].update(data, {
+      where: { id: id },
+      raw: raw,
+      transaction: transaction
+    });
   }
 
-  async update(where = {}, data) {
-    return await this.app.model[this.model].update(data, { where: where });
+  async update(where = {}, data, raw = true, transaction = null) {
+    return await this.app.model[this.model].update(data, {
+      where: where,
+      raw: raw,
+      transaction: transaction
+    });
   }
 
-  async insertOrUpdate(data) {
-    return await this.app.model[this.model].update(data, { returning: false });
+  async insertOrUpdate(data, raw = true, transaction = null) {
+    return await this.app.model[this.model].update(data, {
+      returning: false,
+      raw: raw,
+      transaction: transaction
+    });
   }
 
-  async save(data) {
-    return await this.app.model[this.model].create(data);
+  async save(data, raw = true, transaction = null) {
+    return await this.app.model[this.model].create(data, {
+      raw: raw,
+      transaction: transaction
+    });
   }
 
-  //   async saveMany(models: any[]) {}
-
-  async deleteById(id) {
-    return await this.app.model[this.model].destroy({ where: { id: id } });
+  async saveMany(models, raw = true, transaction = null) {
+    return await this.app.model[this.model].bulkCreate(models, {
+      raw: raw,
+      transaction: transaction
+    });
   }
 
-  async delete(where = {}) {
-    return await this.app.model[this.model].destroy({ where: where });
+  async deleteById(id, raw = true, transaction = null) {
+    return await this.app.model[this.model].destroy({
+      where: { id: id },
+      raw: raw,
+      transaction: transaction
+    });
+  }
+
+  async delete(where = {}, raw = true, transaction = null) {
+    return await this.app.model[this.model].destroy({
+      where: where,
+      raw: raw,
+      transaction: transaction
+    });
   }
 
   //   async deleteMany(ids: number[]) {}

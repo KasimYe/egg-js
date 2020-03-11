@@ -23,13 +23,13 @@ module.exports = app => {
   // // 主题相关
   // router.get(apiPrefix + '/topic/related', controller.topic.relate);
 
-  // // 评论列表
-  // // 查询货物评论列表
-  // router.get(apiPrefix + '/comment/list', controller.comment.list);
-  // // 查询货物评论总数
-  // router.get(apiPrefix + '/comment/count', controller.comment.count);
-  // // 添加评论
-  // router.post(apiPrefix + '/comment/post', needLogin, controller.comment.addPost);
+  // 评论列表
+  // 查询货物评论列表
+  router.get(apiPrefix + '/comment/list', controller.api.comment.list);
+  // 查询货物评论总数
+  router.get(apiPrefix + '/comment/count', controller.api.comment.count);
+  // 添加评论
+  router.post(apiPrefix + '/comment/post', needLogin, controller.api.comment.addPost);
 
   // 商品分类列表
   router.get(apiPrefix + "/catalog/index", controller.api.catalog.index);
@@ -98,11 +98,11 @@ module.exports = app => {
   // 清除用户搜索历史
   router.post(apiPrefix + '/search/clearhistory', controller.api.search.clearHistory);
 
-  // // 订单相关
-  // // 查询订单列表
-  // router.get(apiPrefix + '/order/list', needLogin, controller.order.list);
-  // // 订单详情
-  // router.get(apiPrefix + '/order/detail', controller.order.detail);
-  // // 提交订单
-  // router.post(apiPrefix + '/order/submit', controller.order.submit);
+  // 订单相关
+  // 查询订单列表
+  router.get(apiPrefix + '/order/list', needLogin, controller.api.order.list);
+  // 订单详情
+  router.get(apiPrefix + '/order/detail', controller.api.order.detail);
+  // 提交订单
+  router.post(apiPrefix + '/order/submit', controller.api.order.submit);
 };
