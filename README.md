@@ -1,6 +1,6 @@
-# egg-hideshop-js
+# egg-js
 
-nideshop api by eggjs
+初学eggjs
 
 ## QuickStart
 
