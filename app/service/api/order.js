@@ -12,8 +12,9 @@ class OrderService extends BaseService {
    */
   generateOrderNumber = () => {
     // const date = new Date();
-    const a = moment().format("YYYYMMDDhhmmss");
-    return a + Math.ceil(Math.random() * 10000000);
+    const a = moment().format("YYYYMMDDHHmmss");
+    const sn = a + Math.ceil(Math.random() * 1000000);
+    return sn;
   };
 
   /**
@@ -22,10 +23,11 @@ class OrderService extends BaseService {
    * @param {ICartInst[]} checkedGoodsList 需要加入订单的货物列表
    * @returns {IOrderAttr} newOrderInfo 新订单信息
    */
-  addOrder = async (orderInfo, checkedGoodsList) => {
+  async addOrder(orderInfo, checkedGoodsList) {
     const model = this.app.model;
     const sapi = this.service.api;
-    model.transaction(async t => {
+    let newOrderInfo;
+    await model.transaction(async t => {
       // 在此处开启自动托管事务 NOTE: 其实这些地方有必要开启事务吗，其实没有必要开启事务，
       // 只有提交订单，真正减去货物的时候才要开启事务
 
@@ -50,8 +52,8 @@ class OrderService extends BaseService {
       );
 
       // 插入订单信息
-      const newOrderInfo = await this.save(orderInfo, true, t);
-
+      newOrderInfo = await this.save(orderInfo, true, t);
+      
       // 插入订单商品表
       const orderGoodsData = [];
       checkedGoodsList.forEach(checkedGood => {
@@ -71,17 +73,22 @@ class OrderService extends BaseService {
         };
         orderGoodsData.push(item);
       });
-      const addOrderGood = sapi.orderGoods.saveMany(orderGoodsData, true, t);
-
+      const addOrderGood = await sapi.orderGood.saveMany(
+        orderGoodsData,
+        true,
+        t
+      );
+      
       // 清除购物车
-      const clearCart = sapi.cart.delete(
+      const clearCart = await sapi.cart.delete(
         { user_id: newOrderInfo.user_id, checked: 1 },
         true,
         t
       );
-
+      
       // 减少相应库存
-      const updateProducts = products.map(product => {
+      let updateProducts = [];
+      for (const product of products) {
         let good;
         for (const checkedGood of checkedGoodsList) {
           if (product.id === checkedGood.product_id) {
@@ -89,23 +96,20 @@ class OrderService extends BaseService {
             break;
           }
         }
-
-        return model.Product.update(
-          {
-            goods_number: product.goods_number - good.number
-          },
-          {
-            transaction: t,
-            where: { goods_id: good.goods_id, id: good.product_id }
-          }
+        const updateProduct = await sapi.product.update(
+          { goods_id: good.goods_id, id: good.product_id },
+          { goods_number: product.goods_number - good.number },
+          true,
+          t
         );
-      });
-
+        updateProducts.push(updateProduct);
+      }
+      
       await Promise.all([addOrderGood, clearCart, ...updateProducts]);
-
-      return newOrderInfo;
     });
-  };
+    
+    return newOrderInfo.toJSON();
+  }
 
   /**
    * @description 获取订单状态 NOTE: 现在还只有未支付状态，没有其他状态
@@ -113,18 +117,34 @@ class OrderService extends BaseService {
    * @returns {string} statusText 订单状态
    */
   getOrderStatusText = async orderId => {
-    const orderInfo = await app.model.Order.find({
-      where: { id: orderId },
-      raw: true
-    });
+    const orderInfo = await this.one(orderId);
 
     let statusText = "未付款";
     switch (orderInfo.order_status) {
       case 0:
         statusText = "未付款";
         break;
-      default:
-        statusText = "未付款";
+      case 101:
+        statusText = "已取消";
+        break;
+      case 102:
+        statusText = "已删除";
+        break;
+      case 201:
+        statusText = "已付款";
+        break;
+      case 300:
+        statusText = "已开单";
+        break;
+      case 301:
+        statusText = "已揽件";
+        break;
+      case 302:
+        statusText = "已收货";
+        break;
+      case 402:
+        statusText = "已退款";
+        break;
     }
     return statusText;
   };
@@ -146,10 +166,7 @@ class OrderService extends BaseService {
       buy: false // 再次购买
     };
 
-    const orderInfo = await app.model.Order.find({
-      where: { id: orderId },
-      raw: true
-    });
+    const orderInfo = await this.one(orderId);
 
     // 订单流程：下单成功－》支付订单－》发货－》收货－》评论
     // 订单相关状态字段设计，采用单个字段表示全部的订单状态
@@ -197,7 +214,7 @@ class OrderService extends BaseService {
    * @returns
    * @memberof OrderServ
    */
-  async list() {
+  async orderList() {
     const { model, jwtSession, helper, service } = this.ctx;
     const { count, rows: orders } = await this.listAndCount({
       user_id: jwtSession.user_id
@@ -205,7 +222,9 @@ class OrderService extends BaseService {
 
     const newOrders = await Promise.all(
       orders.map(async order => {
-        const goodsList = await this.list({ order_id: order.id });
+        const goodsList = await service.api.orderGood.list({
+          order_id: order.id
+        });
         order["goodsList"] = goodsList;
 
         let goodsCount = 0;
@@ -243,15 +262,19 @@ class OrderService extends BaseService {
 
     // 获取收货地址信息和计算运费
     const addressInfo = await service.api.address.one(addressId);
-
+    // NOTE: 运费固定为0，运费逻辑未实现
+    let freightPrice = 0.0;
     if (!addressInfo) {
       throw new StatusError(
         "请选择收货地址",
         StatusError.ERROR_STATUS.DATA_ERROR
       );
+    } else {
+      const freightPriceInfo = await service.api.region.one(
+        addressInfo.district_id
+      );
+      freightPrice = freightPriceInfo.freight_price;
     }
-    // NOTE: 运费固定为0，运费逻辑未实现
-    const freightPrice = 0.0;
 
     // 获取购物车中需要付款的商品
     const checkedGoodsList = await service.api.cart.list({
@@ -294,7 +317,7 @@ class OrderService extends BaseService {
       city: addressInfo.city_id,
       district: addressInfo.district_id,
       address: addressInfo.address,
-      freight_price: 0,
+      freight_price: freightPrice,
 
       // 留言
       postscript,
@@ -350,7 +373,7 @@ class OrderService extends BaseService {
     orderInfo["express"] = {};
 
     // 订单内货物
-    const orderGoods = await service.api.orderGoods.list({ order_id: orderId });
+    const orderGoods = await service.api.orderGood.list({ order_id: orderId });
 
     // 订单状态处理
     orderInfo["order_status_text"] = await this.getOrderStatusText(orderId);
@@ -371,6 +394,23 @@ class OrderService extends BaseService {
       orderGoods,
       handleOption
     };
+  }
+
+  async cancel(orderId) {
+    const { model, jwtSession, service } = this.ctx;
+    const orderInfo = await this.find({
+      user_id: jwtSession.user_id,
+      id: orderId
+    });
+    if (!orderInfo) {
+      throw new StatusError("订单不存在", StatusError.ERROR_STATUS.DATA_ERROR);
+    }
+    if (orderInfo.order_status == 0) {
+      await this.updateById(orderId, { order_status: 101 });
+      return { orderInfo };
+    } else {
+      throw new StatusError("订单已开票", StatusError.ERROR_STATUS.DATA_ERROR);
+    }
   }
 }
 

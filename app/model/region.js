@@ -6,7 +6,7 @@
  * 省份城市区域表
  */
 
-const { SMALLINT, STRING, TINYINT } = require("sequelize");
+const { SMALLINT, STRING, TINYINT, DECIMAL } = require("sequelize");
 
 module.exports = app => {
   const sequelize = app.model;
@@ -42,6 +42,18 @@ module.exports = app => {
 
       agency_id: {
         type: SMALLINT.UNSIGNED,
+        allowNull: false,
+        defaultValue: 0
+      },
+
+      freight_price: {
+        type: DECIMAL(10, 2),
+        allowNull: false,
+        defaultValue: 0
+      },
+
+      is_hide: {
+        type: TINYINT,
         allowNull: false,
         defaultValue: 0
       }

@@ -5,8 +5,14 @@ class RegionService extends BaseService {
     super("Region", app);
   }
 
-  getRegionName = regionId => {
+  getRegionName = async regionId => {
     return this.find({ id: regionId }, ["name"]).then(res => res.name);
+  };
+
+  getFreightPrice = async regionId => {
+    return this.find({ id: regionId }, ["freight_price"]).then(
+      res => res.freight_price
+    );
   };
 }
 

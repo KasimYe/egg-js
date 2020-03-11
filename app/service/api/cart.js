@@ -192,6 +192,9 @@ class CartService extends BaseService {
     addressId > 0 ? (whereObj.id = addressId) : (whereObj.is_default = 1);
     const checkedAddress = await service.api.address.find(whereObj);
 
+    // NOTE: 根据收货地址计算运费，暂时没有实现
+    let freightPrice = 0.0;
+
     if (checkedAddress) {
       const [provinceName, cityName, districtName] = await Promise.all([
         service.api.region.getRegionName(checkedAddress.province_id),
@@ -202,11 +205,12 @@ class CartService extends BaseService {
       checkedAddress["city_name"] = cityName;
       checkedAddress["district_name"] = districtName;
       checkedAddress["full_region"] = provinceName + cityName + districtName;
+   
+      freightPrice = await service.api.region.getFreightPrice(
+        checkedAddress.district_id
+      );
     }
-
-    // NOTE: 根据收货地址计算运费，暂时没有实现
-    const freightPrice = 0.0;
-
+  
     // 获取要购买的商品，checked===1才是需要购买的商品
     const cartData = await this.getCart();
     const checkedGoodsList = cartData.cartList.filter(v => {
