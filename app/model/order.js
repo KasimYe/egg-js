@@ -217,6 +217,13 @@ module.exports = app => {
       callback_status: {
         type: BOOLEAN,
         defaultValue: true
+      },
+
+      ems_number: {
+        type: STRING(255),
+        allowNull: false,
+        defaultValue: "",
+        comment: "物流单号"
       }
     },
     {
