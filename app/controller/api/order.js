@@ -18,10 +18,16 @@ class OrderController extends Controller {
    */
   async submit() {
     const { request, helper, response, service } = this.ctx;
-    const { addressId, couponId, postscript = "" } = helper.validateParams(
+    const {
+      addressId,
+      couponId,
+      userId,
+      postscript = ""
+    } = helper.validateParams(
       {
         addressId: { type: "number" },
         couponId: { type: "number" },
+        userId: { type: "number" },
         postscript: { type: "string", required: false }
       },
       request.body,
@@ -30,7 +36,7 @@ class OrderController extends Controller {
 
     const orderInfo = await service.api.order.submit(
       addressId,
-      couponId,
+      couponId,userId,
       postscript
     );
 

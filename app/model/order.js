@@ -188,7 +188,7 @@ module.exports = app => {
       },
 
       freight_price: {
-        type: INTEGER.UNSIGNED,
+        type: DECIMAL(10, 2),
         allowNull: false,
         defaultValue: 0,
         comment: "配送费用"

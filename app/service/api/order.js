@@ -257,9 +257,13 @@ class OrderService extends BaseService {
    * @returns
    * @memberof OrderServ
    */
-  async submit(addressId, couponId, postscript) {
-    const { model, jwtSession, service } = this.ctx;
+  async submit(addressId, couponId, userId, postscript) {
+    const { jwtSession, service } = this.ctx;
 
+    // 之前的服务session里的userid在高并发的情况下会出错，张冠李戴，所以userid也从客户端传过来进行验证
+    if (userId !== jwtSession.user_id) {
+      throw new StatusError("服务器繁忙", StatusError.ERROR_STATUS.DATA_ERROR);
+    }
     // 获取收货地址信息和计算运费
     const addressInfo = await service.api.address.one(addressId);
     // NOTE: 运费固定为0，运费逻辑未实现
@@ -278,7 +282,7 @@ class OrderService extends BaseService {
 
     // 获取购物车中需要付款的商品
     const checkedGoodsList = await service.api.cart.list({
-      user_id: jwtSession.user_id,
+      user_id: userId,
       session_id: 1,
       checked: 1
     });
@@ -309,7 +313,7 @@ class OrderService extends BaseService {
 
     const orderInfo = {
       order_sn: this.generateOrderNumber(),
-      user_id: jwtSession.user_id,
+      user_id: userId,
 
       // 收货地址和运费
       consignee: addressInfo.name,
@@ -351,7 +355,7 @@ class OrderService extends BaseService {
       user_id: jwtSession.user_id,
       id: orderId
     });
-
+    console.log(orderInfo);
     if (!orderInfo) {
       throw new StatusError(
         "没有该笔订单",
@@ -389,7 +393,7 @@ class OrderService extends BaseService {
     }
 
     const handleOption = await this.getOrderHandleOption(orderId);
-
+    console.log(orderInfo);
     return {
       orderInfo,
       orderGoods,
@@ -406,11 +410,12 @@ class OrderService extends BaseService {
     if (!orderInfo) {
       throw new StatusError("订单不存在", StatusError.ERROR_STATUS.DATA_ERROR);
     }
+    const sst = await this.getOrderStatusText(orderId);
     if (orderInfo.order_status == 0) {
       await this.updateById(orderId, { order_status: 101 });
       return { orderInfo };
-    } else {
-      throw new StatusError("订单已开票", StatusError.ERROR_STATUS.DATA_ERROR);
+    } else {      
+      throw new StatusError(`订单${sst}`, StatusError.ERROR_STATUS.DATA_ERROR);
     }
   }
 }
