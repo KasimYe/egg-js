@@ -205,12 +205,12 @@ class CartService extends BaseService {
       checkedAddress["city_name"] = cityName;
       checkedAddress["district_name"] = districtName;
       checkedAddress["full_region"] = provinceName + cityName + districtName;
-   
+
       freightPrice = await service.api.region.getFreightPrice(
         checkedAddress.district_id
       );
     }
-  
+
     // 获取要购买的商品，checked===1才是需要购买的商品
     const cartData = await this.getCart();
     const checkedGoodsList = cartData.cartList.filter(v => {
@@ -228,8 +228,10 @@ class CartService extends BaseService {
     // 计算订单费用
     const goodsTotalPrice = cartData.cartTotal.checkedGoodsAmount;
     const orderTotalPrice =
-      cartData.cartTotal.checkedGoodsAmount + freightPrice - couponPrice; // 订单的总价
-    const actualPrice = orderTotalPrice - 0.0; // 减去其它支付的金额后，要实际支付的金额
+      Number(cartData.cartTotal.checkedGoodsAmount) +
+      Number(freightPrice) -
+      Number(couponPrice); // 订单的总价
+    const actualPrice = Number(orderTotalPrice) - 0.0; // 减去其它支付的金额后，要实际支付的金额
 
     return {
       checkedAddress,

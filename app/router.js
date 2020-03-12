@@ -148,6 +148,10 @@ module.exports = app => {
     controller.api.search.clearHistory
   );
 
+  // 足迹
+  // 足迹列表
+  router.get(apiPrefix + "/footprint/list", needLogin, controller.api.footprint.list);
+
   // 订单相关
   // 查询订单列表
   router.get(apiPrefix + "/order/list", needLogin, controller.api.order.list);
@@ -161,4 +165,8 @@ module.exports = app => {
     needLogin,
     controller.api.order.cancel
   );
+
+  // 支付相关
+  // 提交支付
+  router.get(apiPrefix + "/pay/prepay", needLogin, controller.api.pay.prepay);
 };

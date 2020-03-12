@@ -17,11 +17,11 @@ module.exports = appInfo => {
 
   // 微信配置
   config.wechat = {
-    appid: "wx53d3600d66f0fe90",
-    secret: "cb5a135ceb3105716df122af9f1429ff",
+    appid: "",
+    secret: "",
     mch_id: "",
     partner_key: "",
-    notify_url: ""
+    notify_url: "https://www.nbdoffer.com/api/pay/notify"
   };
 
   // add your config here

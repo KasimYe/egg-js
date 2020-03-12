@@ -53,7 +53,7 @@ class OrderService extends BaseService {
 
       // 插入订单信息
       newOrderInfo = await this.save(orderInfo, true, t);
-      
+
       // 插入订单商品表
       const orderGoodsData = [];
       checkedGoodsList.forEach(checkedGood => {
@@ -78,14 +78,14 @@ class OrderService extends BaseService {
         true,
         t
       );
-      
+
       // 清除购物车
       const clearCart = await sapi.cart.delete(
         { user_id: newOrderInfo.user_id, checked: 1 },
         true,
         t
       );
-      
+
       // 减少相应库存
       let updateProducts = [];
       for (const product of products) {
@@ -104,10 +104,10 @@ class OrderService extends BaseService {
         );
         updateProducts.push(updateProduct);
       }
-      
+
       await Promise.all([addOrderGood, clearCart, ...updateProducts]);
     });
-    
+
     return newOrderInfo.toJSON();
   }
 
@@ -303,8 +303,9 @@ class OrderService extends BaseService {
     }
 
     // 计算订单价格
-    const orderTotalPrice = goodsTotalPrice + freightPrice - couponPrice;
-    const actualPrice = orderTotalPrice - 0.0; // 减去其它支付的金额后，要实际支付的金额
+    const orderTotalPrice =
+      Number(goodsTotalPrice) + Number(freightPrice) - Number(couponPrice);
+    const actualPrice = Number(orderTotalPrice) - 0.0; // 减去其它支付的金额后，要实际支付的金额
 
     const orderInfo = {
       order_sn: this.generateOrderNumber(),
@@ -397,7 +398,7 @@ class OrderService extends BaseService {
   }
 
   async cancel(orderId) {
-    const { model, jwtSession, service } = this.ctx;
+    const { jwtSession } = this.ctx;
     const orderInfo = await this.find({
       user_id: jwtSession.user_id,
       id: orderId

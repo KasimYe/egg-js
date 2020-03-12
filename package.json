@@ -14,9 +14,12 @@
     "egg-userrole": "^2.1.0",
     "egg-validate": "^2.0.2",
     "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.15",
+    "md5": "^2.2.1",
     "moment": "^2.24.0",
     "mysql2": "^2.1.0",
-    "uuid": "^7.0.2"
+    "uuid": "^7.0.2",
+    "weixinpay": "^1.0.12"
   },
   "devDependencies": {
     "autod": "^3.0.1",
