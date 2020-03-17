@@ -35,7 +35,7 @@ class GoodController extends Controller {
    * @memberof GoodCtrl
    */
   async list() {
-    const { helper, request, service, response, jwtSession } = this.ctx;
+    const { helper, request, service, response, jwtSession, model } = this.ctx;
     const {
       categoryId = 0,
       keyword = null,
@@ -64,6 +64,15 @@ class GoodController extends Controller {
       request.query,
       this.ctx
     );
+    // service调用无效
+    if (keyword && jwtSession && jwtSession.user_id) {
+      const add_time = new Date().getTime() / 1000;
+      await model.SearchHistory.create({
+        keyword: keyword,
+        user_id: jwtSession.user_id,
+        add_time: add_time
+      });
+    }
 
     response.body = await service.api.good.listByCategory(
       keyword,

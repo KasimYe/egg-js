@@ -27,13 +27,14 @@ class IndexService extends Service {
     const topicList = await service.api.topic.list({ is_show: 1 }, 1, 3);
     const categoryList = await service.api.category.list({
       parent_id: 0,
-      name: { [Op.not]: "推荐" }
+      name: { [Op.not]: "推荐" },
+      is_show: 1
     });
 
     const newCategoryList = [];
     for (const categoryItem of categoryList) {
       const childCategoryIds = await service.api.category.list(
-        { parent_id: categoryItem.id },
+        { parent_id: categoryItem.id,is_show: 1 },
         1,
         100,
         [],

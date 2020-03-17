@@ -150,7 +150,15 @@ module.exports = app => {
 
   // 足迹
   // 足迹列表
-  router.get(apiPrefix + "/footprint/list", needLogin, controller.api.footprint.list);
+  router.get(
+    apiPrefix + "/footprint/list",
+    needLogin,
+    controller.api.footprint.list
+  );
+
+  //新闻相关
+  //新闻详情
+  router.get(apiPrefix + "/news/index", controller.api.news.index);
 
   // 订单相关
   // 查询订单列表
@@ -165,6 +173,9 @@ module.exports = app => {
     needLogin,
     controller.api.order.cancel
   );
+
+  // 物流信息
+  router.get(apiPrefix + "/express/search", controller.api.express.search);
 
   // 支付相关
   // 提交支付

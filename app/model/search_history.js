@@ -51,8 +51,7 @@ module.exports = app => {
       freezeTableName: true,
       tableName: tablePrefix + "search_history",
       timestamps: false,
-      charset: "utf8mb4",
-      initialAutoIncrement: "28"
+      charset: "utf8mb4"
     }
   );
 

@@ -17,10 +17,19 @@ class GoodService extends BaseService {
   }
 
   async category(id) {
-    const currentCategory = await this.service.api.category.one(id);
+    const currentCategory = await this.service.api.category.find({
+      id: id,
+      is_show: 1
+    });
     const [parentCategory, brotherCategory] = await Promise.all([
-      this.service.api.category.one(currentCategory.parent_id),
-      this.service.api.category.list({ parent_id: currentCategory.parent_id })
+      this.service.api.category.find({
+        id: currentCategory.parent_id,
+        is_show: 1
+      }),
+      this.service.api.category.list({
+        parent_id: currentCategory.parent_id,
+        is_show: 1
+      })
     ]);
 
     return {
@@ -41,18 +50,12 @@ class GoodService extends BaseService {
     isNew,
     isHot
   ) {
-    const { ctx } = this;
+    const { service } = this.ctx;
     // 添加搜索查找条件
-    let whereMap = {};
-    if (keyword && ctx.session.user.id) {
+    let whereMap = { is_delete: 0, is_on_sale: 1 };
+    if (keyword) {
       // 将用户的搜索记录插入到表中
-      whereMap.name = { [Op.like]: `%${keyword}%` };
-
-      ctx.service.api.searchHistories.save({
-        keyword: keyword,
-        user_id: ctx.session.userid,
-        add_time: new Date().getTime() / 1000
-      });
+      whereMap.name = { [Op.like]: `%${keyword}%` };      
     }
 
     brandId ? (whereMap.brand_id = brandId) : null;
@@ -80,23 +83,35 @@ class GoodService extends BaseService {
       }
     ];
     // 搜索商品所属分类
-    const categoryIds = await ctx.service.api.good
-      .list(whereMap, 0, 0, orderMap, ["category_id"], true)
-      .then(categoryInsts =>
-        categoryInsts.map(categoryInst => categoryInst.category_id)
-      );
+    const categoryIds = await this.list(
+      whereMap,
+      0,
+      0,
+      orderMap,
+      ["category_id"],
+      true
+    ).then(categoryInsts =>
+      categoryInsts.map(categoryInst => categoryInst.category_id)
+    );
 
     if (categoryIds && categoryIds.length > 0) {
       // 商品所属分类的父类id
-      const parentIds = await ctx.service.api.category
-        .list({ id: { [Op.in]: categoryIds } }, 0, 0, [], ["parent_id"], true)
+      const parentIds = await service.api.category
+        .list(
+          { id: { [Op.in]: categoryIds }, is_show: 1 },
+          0,
+          0,
+          [],
+          ["parent_id"],
+          true
+        )
         .then(categoryInsts =>
           categoryInsts.map(categoryInst => categoryInst.parent_id)
         );
 
       // 搜索商品所属分类的父类name与id
-      const parentCategory = await ctx.service.api.category.list(
-        { id: { [Op.in]: parentIds } },
+      const parentCategory = await service.api.category.list(
+        { id: { [Op.in]: parentIds }, is_show: 1 },
         0,
         0,
         [],
@@ -150,7 +165,7 @@ class GoodService extends BaseService {
    */
   getChildCategoryId = async parentId => {
     const childIds = await this.service.api.category.list(
-      { parent_id: parentId },
+      { parent_id: parentId, is_show: 1 },
       0,
       0,
       [],

@@ -47,7 +47,18 @@ module.exports = appInfo => {
     }
   };
 
+  config.wechat = {
+    appid: "wx53d3600d66f0fe90",
+    secret: "cb5a135ceb3105716df122af9f1429ff",
+    mch_id: "1576323421",
+    partner_key: "YCSM139mpj248HJF973ss8203jyw2334",
+    notify_url: "https://www.nbdoffer.com/api/pay/notify"
+  };
 
+  config.kdniao = {
+    EBusinessID: "1624860",
+    AppKey: "4055fdde-a443-4da1-85ad-91c43acf911f"
+  };
 
   // config.cluster = {
   //   listen: {
