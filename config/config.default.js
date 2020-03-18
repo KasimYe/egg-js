@@ -54,7 +54,13 @@ module.exports = appInfo => {
     }
   };
 
- 
+  config.wechat = {
+    appid: "",
+    secret: "",
+    mch_id: "",
+    partner_key: "",
+    notify_url: ""
+  };
 
   config.kdniao = {
     EBusinessID: "1624860",
