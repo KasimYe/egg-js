@@ -18,7 +18,8 @@
     "moment": "^2.24.0",
     "mysql2": "^2.1.0",
     "uuid": "^7.0.2",
-    "weixinpay": "^1.0.12"
+    "weixinpay": "^1.0.12",
+    "xml2js": "^0.4.23"
   },
   "devDependencies": {
     "autod": "^3.0.1",

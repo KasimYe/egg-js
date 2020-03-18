@@ -1,6 +1,7 @@
 const BaseService = require("../base");
 const moment = require("moment");
 const { StatusError } = require("../../entity/status_error");
+const sequelize = require("sequelize");
 
 class OrderService extends BaseService {
   constructor(app) {
@@ -103,6 +104,14 @@ class OrderService extends BaseService {
           t
         );
         updateProducts.push(updateProduct);
+        await sapi.good.update(
+          { id: good.goods_id },
+          {
+            goods_number: sequelize.literal(
+              "`goods_number` - " + good.number + ""
+            )
+          }
+        );
       }
 
       await Promise.all([addOrderGood, clearCart, ...updateProducts]);
@@ -294,6 +303,20 @@ class OrderService extends BaseService {
       );
     }
 
+    for (const good of checkedGoodsList) {
+      if (
+        !(await service.api.goodDistrict.checkDistrict(
+          good.goods_id,
+          addressInfo.district_id
+        ))
+      ) {
+        throw new StatusError(
+          `不在配送范围`,
+          StatusError.ERROR_STATUS.DATA_ERROR
+        );
+      }
+    }
+
     // 统计商品总价
     let goodsTotalPrice = 0.0;
     checkedGoodsList.forEach(good => {
@@ -414,7 +437,7 @@ class OrderService extends BaseService {
     if (orderInfo.order_status == 0) {
       await this.updateById(orderId, { order_status: 101 });
       return { orderInfo };
-    } else {      
+    } else {
       throw new StatusError(`订单${sst}`, StatusError.ERROR_STATUS.DATA_ERROR);
     }
   }

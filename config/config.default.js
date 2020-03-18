@@ -41,19 +41,20 @@ module.exports = appInfo => {
     secret: "SLDLKKDS323ssdd@#@@gf"
   };
 
+  config.bodyParser = {
+    enableTypes: ['json', 'form', 'text'],
+    extendTypes: {
+      text: ['text/xml', 'application/xml'],
+    }
+  }
+
   config.security = {
     csrf: {
       enable: false
     }
   };
 
-  config.wechat = {
-    appid: "wx53d3600d66f0fe90",
-    secret: "cb5a135ceb3105716df122af9f1429ff",
-    mch_id: "1576323421",
-    partner_key: "YCSM139mpj248HJF973ss8203jyw2334",
-    notify_url: "https://www.nbdoffer.com/api/pay/notify"
-  };
+ 
 
   config.kdniao = {
     EBusinessID: "1624860",

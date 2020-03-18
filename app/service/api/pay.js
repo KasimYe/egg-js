@@ -1,5 +1,6 @@
 const { Service } = require("egg");
 const { StatusError } = require("../../entity/status_error");
+const xml2js = require("xml2js");
 
 class PayService extends Service {
   async prepay(orderId) {
@@ -43,7 +44,8 @@ class PayService extends Service {
 
   async notify(xml) {
     const sapi = this.service.api;
-    const result = sapi.wechat.payNotify(xml);
+    const notifyData = await xml2js.parseStringPromise(xml);
+    const result = sapi.wechat.payNotify(notifyData.xml);
     if (!result) {
       return `<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[支付失败]]></return_msg></xml>`;
     }

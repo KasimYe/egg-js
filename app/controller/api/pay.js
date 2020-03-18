@@ -15,16 +15,8 @@ class PayController extends Controller {
   }
 
   async notify(){
-    const { request, helper, service, response } = this.ctx;
-    const { xml } = helper.validateParams(
-      {
-        xml: { type: "string", field: "xml" }
-      },
-      request.query,
-      this.ctx
-    );
-
-    response.body = await service.api.pay.notify(xml);
+    const { request, service, response } = this.ctx;    
+    response.body = await service.api.pay.notify(request.body);
   }
 }
 

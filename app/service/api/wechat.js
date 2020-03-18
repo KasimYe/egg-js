@@ -43,7 +43,7 @@ class WeChatService extends Service {
       mch_id: config.wechat.mch_id, // 商户帐号ID
       partner_key: config.wechat.partner_key // 秘钥
     });
-    
+    console.log("payInfo:", payInfo);
     return new Promise((resolve, reject) => {
       weixinpay.createUnifiedOrder(
         {
@@ -55,7 +55,6 @@ class WeChatService extends Service {
           trade_type: "JSAPI"
         },
         res => {
-          
           if (res.return_code === "SUCCESS" && res.result_code === "SUCCESS") {
             const returnParams = {
               appid: res.appid,
@@ -101,8 +100,7 @@ class WeChatService extends Service {
    * @returns {Promise.<string>}
    */
   signQuery(queryStr) {
-    queryStr = queryStr + "&key=" + think.config("weixin.partner_key");
-    const md5 = require("md5");
+    queryStr = queryStr + "&key=" + this.app.config.wechat.partner_key;    
     const md5Sign = md5(queryStr);
     return md5Sign.toUpperCase();
   }
@@ -113,7 +111,7 @@ class WeChatService extends Service {
    * @returns {{}}
    */
   payNotify(notifyData) {
-    if (think.isEmpty(notifyData)) {
+    if (!notifyData) {
       return false;
     }
 
@@ -133,7 +131,7 @@ class WeChatService extends Service {
       return false;
     }
     const signString = this.signQuery(this.buildQuery(notifyObj));
-    if (think.isEmpty(sign) || signString !== sign) {
+    if (!sign || signString !== sign) {
       return false;
     }
     return notifyObj;

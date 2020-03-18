@@ -1,6 +1,7 @@
 const BaseService = require("../base");
 const { StatusError } = require("../../entity/status_error");
 const { Op } = require("sequelize");
+const _ = require("lodash");
 
 class CartService extends BaseService {
   constructor(app) {
@@ -29,11 +30,12 @@ class CartService extends BaseService {
     let checkedGoodsAmount = 0.0;
 
     for (const cartItem of cartList) {
-      goodsCount += cartItem.number;
-      goodsAmount += cartItem.number * cartItem.retail_price;
+      goodsCount += Number(cartItem.number);
+      goodsAmount += Number(cartItem.number) * Number(cartItem.retail_price);
       if (cartItem.checked) {
-        checkedGoodsCount += cartItem.number;
-        checkedGoodsAmount += cartItem.number * cartItem.retail_price;
+        checkedGoodsCount += Number(cartItem.number);
+        checkedGoodsAmount +=
+          Number(cartItem.number) * Number(cartItem.retail_price);
       }
 
       // NOTE: 已经有商品图片了，源码这里为什么还要查找商品的图片？？
@@ -47,10 +49,10 @@ class CartService extends BaseService {
     return {
       cartList,
       cartTotal: {
-        goodsCount,
-        goodsAmount,
-        checkedGoodsCount,
-        checkedGoodsAmount
+        goodsCount: _.ceil(goodsCount, 2),
+        goodsAmount: _.ceil(goodsAmount, 2),
+        checkedGoodsCount: _.ceil(checkedGoodsCount, 2),
+        checkedGoodsAmount: _.ceil(checkedGoodsAmount, 2)
       }
     };
   }
@@ -64,7 +66,7 @@ class CartService extends BaseService {
     const sapi = this.ctx.service.api;
     const goodsInfo = await sapi.good.one(goodsId);
     // 判断商品是否可以购买
-    if (!goodsInfo || goodsInfo.is_delete === 1) {
+    if (!goodsInfo || goodsInfo.is_delete === 1 || goodsInfo.is_on_sale === 0) {
       throw new StatusError("商品已下架", StatusError.ERROR_STATUS.DATA_ERROR);
     }
     return goodsInfo;

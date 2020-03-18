@@ -106,7 +106,7 @@ class BaseService extends Service {
       transaction: transaction
     });
   }
-
+  
   async insertOrUpdate(data, raw = true, transaction = null) {
     return await this.app.model[this.model].update(data, {
       returning: false,

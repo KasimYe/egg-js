@@ -180,4 +180,5 @@ module.exports = app => {
   // 支付相关
   // 提交支付
   router.get(apiPrefix + "/pay/prepay", needLogin, controller.api.pay.prepay);
+  router.get(apiPrefix + "/pay/notify", controller.api.pay.notify);
 };

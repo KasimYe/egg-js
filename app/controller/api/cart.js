@@ -80,14 +80,12 @@ class CartController extends Controller {
     // 上传的货物id由，分割
     const productIdArr = productIds.split(",");
 
-    await model.Cart.destroy({
-      where: {
-        product_id: { [Op.in]: productIdArr },
-        user_id: jwtSession.user_id
-      }
+    await service.api.cart.delete({
+      product_id: { [Op.in]: productIdArr },
+      user_id: jwtSession.user_id
     });
 
-    response.body = await service.cart.getCart();
+    response.body = await service.api.cart.getCart();
   }
 
   /**

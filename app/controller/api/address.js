@@ -41,7 +41,7 @@ class AddressController extends Controller {
 
     const addressInfo = await service.api.address
       .find({ user_id: jwtSession.user_id, id: addressId })
-      .then(address => address && model.Address.getDetailAddress(address));
+      .then(address => address && service.api.address.getDetailAddress(address));
 
     response.body = addressInfo || {};
   }
@@ -85,7 +85,7 @@ class AddressController extends Controller {
         address: { type: "string" },
         city_id: { type: "number" },
         district_id: { type: "number" },
-        is_default: { type: "boolean" },
+        is_default: { type: "boolean", required: false },
         mobile: { type: "string" },
         name: { type: "string" },
         province_id: { type: "number" }
